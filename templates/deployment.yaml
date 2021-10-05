@@ -34,19 +34,30 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - name: http
-              containerPort: 80
+            {{- range .Values.service.ports }}
+            - port: {{ .port }}
+              targetPort: {{ .targetPort }}
               protocol: TCP
+              name: {{ .name }}
+            {{- end }}
           livenessProbe:
             httpGet:
-              path: /
-              port: http
+              path: /metrics
+              port: {{.Values.livenessProbePort}}
           readinessProbe:
             httpGet:
-              path: /
-              port: http
+              path: /metrics
+              port: {{.Values.readinessProbePort}}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: config
+              mountPath: /etc/chproxy
+              readOnly: true
+          command: 
+            - /chproxy
+            - --config
+            - /etc/chproxy/config.yaml
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -59,3 +70,8 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            defaultMode: 0600
+            name: {{ include "chproxy.fullname" . }}
