@@ -13,9 +13,10 @@ spec:
       {{- include "chproxy.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
       annotations:
-        {{- toYaml . | nindent 8 }}
+        checksum/config: {{ .Values.config | sha256sum | trunc 8 }} 
+      {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}        
       {{- end }}
       labels:
         {{- include "chproxy.selectorLabels" . | nindent 8 }}
@@ -35,8 +36,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             {{- range .Values.service.ports }}
-            - port: {{ .port }}
-              targetPort: {{ .targetPort }}
+            - containerPort: {{ .port }}
               protocol: TCP
               name: {{ .name }}
             {{- end }}

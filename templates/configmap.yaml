@@ -5,7 +5,5 @@ metadata:
   labels:
     {{- include "chproxy.labels" . | nindent 4 }}
 data:
-  {{- if .Values.externalConfigMap.enabled }}
   config.yaml: |
-    {{ .Values.externalConfigMap.data | nindent 4 }}
-  {{- end }}
+    {{ .Values.config | nindent 4 }}

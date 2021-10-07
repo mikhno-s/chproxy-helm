@@ -92,19 +92,18 @@ tolerations: []
 
 affinity: {}
 
-externalConfigMap: 
-  enabled: false
-  data: |
-    server:
-      http:
-          listen_addr: ":80"
-
+config: |
+  hack_me_please: true
+  server:
+    http:
+      listen_addr: ":80"
+  users:
+    - name: "default"
+      to_user: "default"
+      to_cluster: "default"
+  clusters:
+    - name: "default"
+      scheme: "http"
+      nodes: [ "clickhouse:8123"]
       users:
-      - name: "default"
-        to_cluster: "default"
-        to_user: "default"
-
-      # by default each cluster has `default` user which can be overridden by section `users`
-      clusters:
-      - name: "default"
-        nodes: ["127.0.0.1:8123"]
+        - name: "default"
